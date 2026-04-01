@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nikkei Internment Memorial Centre – New Denver, BC</title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
+  <script src="https://js.arcgis.com/4.29/"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: Georgia, 'Times New Roman', serif;
+      background: #f5efe0;
+      color: #2c1f0e;
+    }
+
+    #app {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* ── SIDECAR ─────────────────────────────── */
+    #sidecar {
+      width: 38%;
+      min-width: 300px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f5efe0;
+      border-right: 2px solid #c4a46b;
+      z-index: 10;
+    }
+
+    #sidecar-nav {
+      background: #2c1f0e;
+      padding: 10px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    #sidecar-nav .site-title {
+      color: #d4b483;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .nav-btn {
+      background: #6b4a1e;
+      color: #f5efe0;
+      border: 1px solid #c4a46b;
+      padding: 5px 12px;
+      font-family: Georgia, serif;
+      font-size: 0.74rem;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      border-radius: 2px;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover { background: #8b6330; }
+
+    #sidecar-body {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    #sidecar-body::-webkit-scrollbar { width: 5px; }
+    #sidecar-body::-webkit-scrollbar-track { background: #ede3cc; }
+    #sidecar-body::-webkit-scrollbar-thumb { background: #c4a46b; border-radius: 3px; }
+
+    /* ── SECTIONS ────────────────────────────── */
+    .section {
+      padding: 26px 26px 30px;
+      border-bottom: 1px solid #d4b483;
+      transition: background 0.3s;
+    }
+
+    .section:last-child { border-bottom: none; }
+
+    .section.active { background: #ede3cc; }
+
+    .section h2 {
+      font-size: 1.1rem;
+      color: #2c1f0e;
+      margin-bottom: 14px;
+      padding-bottom: 7px;
+      border-bottom: 2px solid #c4a46b;
+      letter-spacing: 0.02em;
+    }
+
+    .section.intro h2,
+    .section.outro h2 {
+      font-size: 1.25rem;
+    }
+
+    /* Placeholder slots */
+    .placeholder-text {
+      color: #a08050;
+      font-style: italic;
+      font-size: 0.86rem;
+      line-height: 1.65;
+      border: 1px dashed #c4a46b;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: #faf5ea;
+      border-radius: 2px;
+    }
+
+    .placeholder-img {
+      width: 100%;
+      height: 130px;
+      border: 2px dashed #c4a46b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b09060;
+      font-size: 0.8rem;
+      font-style: italic;
+      background: #faf5ea;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── MAP ─────────────────────────────────── */
+    #mapDiv {
+      flex: 1;
+      height: 100vh;
+    }
+
+    /* Suppress default ESRI popup */
+    .esri-popup__main-container { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SIDECAR -->
+  <div id="sidecar">
+    <div id="sidecar-nav">
+      <span class="site-title">Nikkei Internment<br>Memorial Centre</span>
+      <button class="nav-btn" onclick="scrollToSection('welcome')">&#8679; Welcome</button>
+      <button class="nav-btn" onclick="scrollToSection('about')">About &#8681;</button>
+    </div>
+
+    <div id="sidecar-body">
+
+      <!-- WELCOME -->
+      <div class="section intro" id="welcome">
+        <h2>Welcome</h2>
+        <div class="placeholder-text">[ Introductory text goes here. ]</div>
+      </div>
+
+      <!-- LANDMARKS -->
+      <div class="section" id="entrance-arch" data-landmark="Entrance Arch">
+        <h2>Entrance Arch</h2>
+        <div class="placeholder-text">[ Text about the Entrance Arch goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="visitor-reception-centre" data-landmark="Visitor Reception Centre">
+        <h2>Visitor Reception Centre</h2>
+        <div class="placeholder-text">[ Text about the Visitor Reception Centre goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="fire-and-water-display" data-landmark="Fire and Water Display">
+        <h2>Fire and Water Display</h2>
+        <div class="placeholder-text">[ Text about the Fire and Water Display goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="carved-stump" data-landmark="Carved Stump">
+        <h2>Carved Stump</h2>
+        <div class="placeholder-text">[ Text about the Carved Stump goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="shack-1942-1944" data-landmark="Shack  1942 - 1944">
+        <h2>Shack 1942–1944</h2>
+        <div class="placeholder-text">[ Text about the Shack (1942–1944) goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="outhouse" data-landmark="Outhouse">
+        <h2>Outhouse</h2>
+        <div class="placeholder-text">[ Text about the Outhouse goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="shack-1944-1957" data-landmark="Shack 1944 - 1957">
+        <h2>Shack 1944–1957</h2>
+        <div class="placeholder-text">[ Text about the Shack (1944–1957) goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="vegetable-garden" data-landmark="Vegetable Garden">
+        <h2>Vegetable Garden</h2>
+        <div class="placeholder-text">[ Text about the Vegetable Garden goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="peace-arch" data-landmark="Peace Arch">
+        <h2>Peace Arch</h2>
+        <div class="placeholder-text">[ Text about the Peace Arch goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="centennial-hall" data-landmark="Centennial Hall">
+        <h2>Centennial Hall</h2>
+        <div class="placeholder-text">[ Text about Centennial Hall goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="kyowakai-hall" data-landmark="Kyowakai Hall">
+        <h2>Kyowakai Hall</h2>
+        <div class="placeholder-text">[ Text about Kyowakai Hall goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <div class="section" id="heiwa-tien" data-landmark="Heiwa Tien (Peace Garden)">
+        <h2>Heiwa Tien (Peace Garden)</h2>
+        <div class="placeholder-text">[ Text about Heiwa Tien (Peace Garden) goes here. ]</div>
+        <div class="placeholder-img">[ Image ]</div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="section outro" id="about">
+        <h2>About the Project</h2>
+        <div class="placeholder-text">[ About the project text goes here. ]</div>
+      </div>
+
+    </div><!-- end sidecar-body -->
+  </div><!-- end sidecar -->
+
+  <!-- MAP -->
+  <div id="mapDiv"></div>
+
+</div><!-- end app -->
+
+<script>
+require([
+  "esri/config",
+  "esri/WebMap",
+  "esri/views/MapView",
+  "esri/layers/GraphicsLayer",
+  "esri/Graphic",
+  "esri/geometry/Point",
+  "esri/symbols/SimpleMarkerSymbol"
+], function(esriConfig, WebMap, MapView, GraphicsLayer, Graphic, Point, SimpleMarkerSymbol) {
+
+  esriConfig.portalUrl = "https://selkirk.maps.arcgis.com";
+
+  const webmap = new WebMap({
+    portalItem: { id: "5eed0fa633c5478ebcb73f8e76d2dd44" }
+  });
+
+  const view = new MapView({
+    container: "mapDiv",
+    map: webmap,
+    popup: { autoOpenEnabled: false }
+  });
+
+  // GraphicsLayer for the selection halo — sits on top of all other layers
+  const selectionLayer = new GraphicsLayer();
+
+  const haloSymbol = new SimpleMarkerSymbol({
+    style: "circle",
+    color: [0, 0, 0, 0],          // transparent fill
+    size: "26px",
+    outline: {
+      color: [196, 164, 107, 255], // warm gold matching the UI
+      width: 3
+    }
+  });
+
+  function showHalo(geometry) {
+    selectionLayer.removeAll();
+    selectionLayer.add(new Graphic({ geometry: geometry, symbol: haloSymbol }));
+  }
+
+  // Cache feature geometries keyed by exact Landmark value
+  const featureGeometries = {};
+  let landmarkLayer = null;
+  let isProgrammaticScroll = false;
+
+  view.when(function () {
+    webmap.add(selectionLayer);   // add after map loads so it renders on top
+
+    // Locate the points layer
+    landmarkLayer = webmap.layers.find(function (l) {
+      return l.title === "NIMC Landmarks";
+    });
+
+    if (!landmarkLayer) {
+      console.warn("NIMC Landmarks layer not found.");
+      return;
+    }
+
+    // Query and cache all features with geometry
+    landmarkLayer.load().then(function () {
+      return landmarkLayer.queryFeatures({
+        where: "1=1",
+        outFields: ["Landmark", "OBJECTID"],
+        returnGeometry: true
+      });
+    }).then(function (result) {
+      result.features.forEach(function (f) {
+        featureGeometries[f.attributes.Landmark] = f.geometry;
+      });
+    });
+  });
+
+  // MAP CLICK → query nearby features → scroll sidecar
+  view.on("click", function (event) {
+    if (!landmarkLayer) return;
+
+    // Use a small screen-pixel tolerance to query features near the click
+    const opts = { include: landmarkLayer };
+    view.hitTest(event, opts).then(function (response) {
+
+      if (!response.results.length) return;
+
+      const graphic = response.results[0].graphic;
+      if (!graphic) return;
+
+      // If attributes are already loaded use them; otherwise query by ObjectId
+      if (graphic.attributes && graphic.attributes.Landmark) {
+        handleSelection(graphic.attributes.Landmark, graphic.geometry);
+        return;
+      }
+
+      // Fallback: query the feature by ObjectId to get full attributes
+      const oid = graphic.attributes && graphic.attributes.OBJECTID;
+      if (oid == null) return;
+
+      landmarkLayer.queryFeatures({
+        objectIds: [oid],
+        outFields: ["Landmark"],
+        returnGeometry: true
+      }).then(function (result) {
+        if (!result.features.length) return;
+        const f = result.features[0];
+        handleSelection(f.attributes.Landmark, f.geometry);
+      });
+    });
+  });
+
+  function handleSelection(name, geometry) {
+    const target = document.querySelector('[data-landmark="' + name + '"]');
+    if (!target) return;
+
+    // Show halo on the map
+    const geom = geometry || featureGeometries[name];
+    if (geom) showHalo(geom);
+
+    // Scroll sidecar
+    highlightSection(target);
+    isProgrammaticScroll = true;
+    const body = document.getElementById("sidecar-body");
+    body.scrollTo({ top: target.offsetTop, behavior: "smooth" });
+    setTimeout(function () { isProgrammaticScroll = false; }, 1200);
+  }
+
+  // SIDECAR SCROLL → pan map to landmark
+  const sidecarBody = document.getElementById("sidecar-body");
+  const landmarkSections = document.querySelectorAll(".section[data-landmark]");
+
+  const observer = new IntersectionObserver(function (entries) {
+    if (isProgrammaticScroll) return;
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+        const name = entry.target.dataset.landmark;
+        const geom = featureGeometries[name];
+        if (geom) {
+          showHalo(geom);
+          view.goTo({ target: geom, zoom: 20 }, { duration: 700 });
+        }
+        highlightSection(entry.target);
+      }
+    });
+  }, {
+    root: sidecarBody,
+    threshold: 0.5
+  });
+
+  landmarkSections.forEach(function (s) { observer.observe(s); });
+
+  function highlightSection(el) {
+    document.querySelectorAll(".section.active").forEach(function (s) {
+      s.classList.remove("active");
+    });
+    el.classList.add("active");
+  }
+
+});
+
+// Nav button scroll
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  const body = document.getElementById("sidecar-body");
+  if (el && body) {
+    body.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+  }
+}
+</script>
+
+</body>
+</html>
